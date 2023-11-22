@@ -3,18 +3,18 @@ var jwt = require('jsonwebtoken');
 const saltRound = 12;
 const secretKey = '1@30(8)rety#jbdsj!';
 
-const hashPassword = async(password)=>{
+const hashPassword = async (password) => {
     const salt = await bcrypt.genSalt(saltRound);
     const hash = await bcrypt.hash(password, salt);
     return hash;
 }
 
-const comparePassword = async(password, hash)=>{
+const comparePassword = async (password, hash) => {
     return bcrypt.compare(password, hash);
 }
 
-const createToken = async({userName, id, email, mobile})=>{
-    const token = jwt.sign({userName, id, email, mobile}, secretKey, {expiresIn: '1hr'});
+const createToken = async ({ userName, id, email, mobile }) => {
+    const token = jwt.sign({ userName, id, email, mobile }, secretKey, { expiresIn: '1hr' });
     return token;
 }
 
@@ -36,4 +36,4 @@ const validate = async (req, res, next) => {
     }
 }
 
-module.exports = {hashPassword, comparePassword, createToken, validate};
+module.exports = { hashPassword, comparePassword, createToken, validate };

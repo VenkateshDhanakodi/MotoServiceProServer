@@ -8,10 +8,10 @@ var cors = require('cors')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var bookingsRouter = require('./routes/bookings');
-var servicesRouter = require('./routes/services'); 
-var signUpSignInRouter = require('./routes/signUpSignIn'); 
-var motorCyclesRouter = require('./routes/motorCycles'); 
-var paymentRouter = require('./routes/payment'); 
+var servicesRouter = require('./routes/services');
+var signUpSignInRouter = require('./routes/signUpSignIn');
+var motorCyclesRouter = require('./routes/motorCycles');
+var paymentRouter = require('./routes/payment');
 
 var app = express();
 
@@ -30,12 +30,12 @@ app.use('/api', signUpSignInRouter);
 app.use('/motorCycles', motorCyclesRouter);
 app.use('/payment', paymentRouter);
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

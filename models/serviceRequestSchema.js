@@ -12,7 +12,6 @@ const serviceRequestSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'completed'],
     default: 'pending',
   },
-  // Add any other fields you need
 });
 
 const serviceRequestModel = mongoose.model('serviceRequests', serviceRequestSchema);

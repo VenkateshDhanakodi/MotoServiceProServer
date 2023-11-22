@@ -1,6 +1,6 @@
-const {dbUrl, mongoose} = require('../config/dbConfig');
-const {userModel} = require('../models/userSchema');
-const {hashPassword, comparePassword, createToken} = require('../middleware/auth');
+const { dbUrl, mongoose } = require('../config/dbConfig');
+const { userModel } = require('../models/userSchema');
+const { hashPassword, comparePassword, createToken } = require('../middleware/auth');
 const nodemailer = require('nodemailer'); // Importing nodemailer module
 require('dotenv').config(); // Loading environment variables from .env file
 mongoose.connect(dbUrl);
@@ -8,7 +8,7 @@ mongoose.connect(dbUrl);
 const signUp = async (req, res) => {
     let { firstName, lastName, email, mobile, password } = req.body;
 
-    // Check if firstName and lastName are provided
+    // Checking if firstName and lastName are provided
     if (!firstName || !lastName) {
         return res.status(400).json({
             message: "First name and last name are required",
@@ -16,7 +16,7 @@ const signUp = async (req, res) => {
     }
 
     try {
-        // Check if the email already exists
+        // Checking if the email already exists
         const oldUser = await userModel.findOne({ email });
         if (oldUser) {
             return res.status(400).json({
@@ -36,7 +36,6 @@ const signUp = async (req, res) => {
         return res.status(201).json({
             message: "Signed up successfully",
             data: newUser,
-            // You can include a token here if needed
         });
     } catch (error) {
         console.error("Error during sign-up:", error);
@@ -47,19 +46,19 @@ const signUp = async (req, res) => {
     }
 };
 
-const signIn = async(req, res)=>{
-    let {email, password} = req.body;
+const signIn = async (req, res) => {
+    let { email, password } = req.body;
     console.log(email, password);
     try {
-        let oldUser = await userModel.findOne({email});
-        if(oldUser){
+        let oldUser = await userModel.findOne({ email });
+        if (oldUser) {
             let comparedPassword = await comparePassword(password, oldUser.password);
-            if(!comparedPassword){
+            if (!comparedPassword) {
                 res.status(404).send({
                     message: "Invalid Credentials"
                 })
-            }else{
-                let userData = {userName:oldUser.userName, email: oldUser.email, id:oldUser._id, mobile:oldUser.mobile}
+            } else {
+                let userData = { userName: oldUser.userName, email: oldUser.email, id: oldUser._id, mobile: oldUser.mobile }
                 let token = await createToken(userData);
                 res.status(200).send({
                     message: "Login successfull",
@@ -67,13 +66,13 @@ const signIn = async(req, res)=>{
                     token
                 })
             }
-        }else{
+        } else {
             res.status(400).send({
-                message:"The requested login denied due to email is not registered in the system"
+                message: "The requested login denied due to email is not registered in the system"
             })
         }
     } catch (error) {
-        res.status(500).send({message:"Internal Server Error",error});
+        res.status(500).send({ message: "Internal Server Error", error });
     }
 };
 
@@ -82,25 +81,24 @@ const resetPasswordEmail = async (user_mail, resetToken) => {
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
-            user: process.env.EMAIL_USER, // Using environment variable
-            pass: process.env.EMAIL_PASSWORD, // Using environment variable
+            // Using environment variable
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
         },
     });
 
-    // Constructing the reset link
-    // const resetLink = `http://localhost:3377/api/resetPassword/${resetToken}`;
     const resetLink = `http://localhost:3000/reset-password/routing/${resetToken}`;
 
     // Email content
     const mailOptions = {
-        from: process.env.EMAIL_USER, // app-specific email
-        to: user_mail, // receiver's email
+        from: process.env.EMAIL_USER,
+        to: user_mail,
         subject: 'Password Reset',
         text: `Hello, This is in regards of Password-Reset for MotoServicePro website. Click the link to reset your password: ${resetLink}`,
     };
 
     try {
-        await transporter.sendMail(mailOptions); // Sending the email
+        await transporter.sendMail(mailOptions);
         console.log('Password reset email sent successfully');
     } catch (error) {
         console.log("Error in resetPasswordEmail:", error);
@@ -141,17 +139,17 @@ const forgetPassword = async (req, res) => {
     }
 };
 
-const resetPassword = async(req, res)=>{
+const resetPassword = async (req, res) => {
     try {
-        const {newPassword, confirmPassword} = req.body;
+        const { newPassword, confirmPassword } = req.body;
         const token = req.token;
-        if(newPassword !== confirmPassword){
+        if (newPassword !== confirmPassword) {
             res.status(400).send({
-                message:"The new password and confirm password is not matching"
+                message: "The new password and confirm password is not matching"
             })
         }
-        let passwordUpdate = await userModel.findOne({token});
-        if(passwordUpdate){
+        let passwordUpdate = await userModel.findOne({ token });
+        if (passwordUpdate) {
             const newPass = await hashPassword(newPassword)
             passwordUpdate.password = newPass;
             passwordUpdate.token = undefined;
@@ -159,14 +157,14 @@ const resetPassword = async(req, res)=>{
             res.status(201).send({
                 message: "Password updated succsfully"
             })
-        }else{
+        } else {
             res.status(400).send({
-                message:"Token is Invalid"
+                message: "Token is Invalid"
             })
         }
     } catch (error) {
-        res.status(500).send({message:"Internal Server Error",error});
+        res.status(500).send({ message: "Internal Server Error", error });
     }
 }
 
-module.exports = {signUp, signIn, forgetPassword, resetPassword, resetPasswordEmail};
+module.exports = { signUp, signIn, forgetPassword, resetPassword, resetPasswordEmail };
